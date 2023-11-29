@@ -33,7 +33,9 @@ P = Hx
 | x | Concentración del gas en el líquido|
 | p | Presión parcial del gas|
 
-![Alt text](imagen_2023-11-29_183542111.png)
+* Constantes de Henry para la disolución de gases en agua de acuerdo a su temperatura:
+
+![Alt text](imagen_2023-11-29_120139977.png)
 
 También se puede despejar la misma fórmula para determinar la masa de gas que se disolvió en el líquido.
 
