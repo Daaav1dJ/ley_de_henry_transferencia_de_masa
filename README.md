@@ -114,7 +114,7 @@ def calcular():
         # llama a la funcion creada
         calculo_si = calcular_gramos_gas(presion_parcial, constante_henry, cantidad_agua, gas_deseado, PM_agua, masa_molecular)
         # se imprime el resultado con dos decimales
-        resultado_cantidad_var.set("La cantidad de gas {} que se disolverá en el agua es: {:.2f} g".format(gas_deseado, calculo_si))
+        resultado_cantidad_var.set("La cantidad de gas {} que se disolverá en el agua es: {:.4f} g".format(gas_deseado, calculo_si))
         # Limpiar el resultado "presion"
         resultado_presion_var.set("")  
         # Limpiar el resultado "concentracion"
@@ -128,7 +128,7 @@ def calcular():
         #llama a la funcion
         calculo_no = calcular_presion_parcial(gramos_gas, gramos_agua, gas_deseado, masa_molecular, PM_agua)
         #imprime el resultado con dos decimales
-        resultado_presion_var.set("La presión parcial del gas {} es: {:.2f} atm".format(gas_deseado, calculo_no),)
+        resultado_presion_var.set("La presión parcial del gas {} es: {:.4f} atm".format(gas_deseado, calculo_no),)
         # Limpiar el resultado "concentracion"
         resultado_concentracion_var.set("")  
         # Limpiar el resultado "cantidad"
