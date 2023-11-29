@@ -33,6 +33,8 @@ P = Hx
 | x | Concentración del gas en el líquido|
 | p | Presión parcial del gas|
 
+![Alt text](imagen_2023-11-29_183542111.png)
+
 También se puede despejar la misma fórmula para determinar la masa de gas que se disolvió en el líquido.
 
 x = P/H
