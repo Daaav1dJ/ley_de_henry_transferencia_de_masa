@@ -443,6 +443,6 @@ app.mainloop()
 Acá una comprobación de que el código cumple la función planteada: 
 
 ![Alt text](imagen_2023-11-29_121505314.png)
-(imagen_2023-11-29_121505314.png)
+![Alt text](imagen_2023-11-29_123214586.png)
 
 Al correr el código nos aparece una interfaz la cual nos permite elegir un gas, la temperatura a la que se está llevando a cabo el proceso, la masa del líquido (en este caso, agua) y la presión parcial (si queremos hayar la masa de gas se disolvió en el líquido) o la masa de gas (si queremos hayar la presión parcial).
