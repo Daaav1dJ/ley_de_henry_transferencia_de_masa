@@ -45,8 +45,32 @@ Y acá está el programita para resolver el problema planteado (hasta le pusimos
 
 ```python
 
+
+# PROYECTO calculadora de absorcion de gases 
+# Tatiana Perez y David reinel
+
+#Nos basamos en transferencia de masa por metodo de equilibrio quimica en la absrocion de gases, 
+#en este programa se hace a presion de 1 atm y a diferentes temperaturas
+
+
+#Primero importamos la libreria de customtkinter para la interfaz grafica y tkinter para hacer algunas cositas 
 from customtkinter import *
 from tkinter import PhotoImage, StringVar
+
+# funcion para calcular la concentracion de la disolucion formada
+def calcular_concentracion(presion_sis, volumen_agua, volumen_mezcla, constante_henry, composicion_gas, temperatura, gas_deseado):
+    #constanre r de ley de los gases ideales
+    constante_r = 0.08205
+    #grados kelvin, para hallar valor absoluto
+    k = 273.15
+    # moles iniciales de solo el gas usando formula de gases ideales pv = nRT, despejamos n para hallar los moles iniciales del gas y pasarlos a gramos
+    Ni = (presion_sis * (composicion_gas / 100) * volumen_mezcla) / (constante_r * (k + temperatura))
+    # la misma formula anterior pero sin la presion para calcular de la concentracion ya que p = Hc y despejamos c 
+    Nf = volumen_mezcla / (constante_r * (temperatura + k))
+    #despejando la concentracion se calcula los gramos de solo el gas sobre los gramos de agua
+    Concentracion = (masa_molecular[gas_deseado] * Ni) / (volumen_agua + (masa_molecular[gas_deseado] * Nf * constante_henry[gas_deseado]))
+    #retornamos la concentracion
+    return Concentracion
 
 # en esta funcion se calculan los gramos del gas
 def calcular_gramos_gas(presion_parcial, constante_henry, cantidad_agua, gas_deseado, PM_agua, masa_molecular):
@@ -70,6 +94,7 @@ def calcular_presion_parcial(gramos_gas, gramos_agua, gas_deseado, masa_molecula
     #se retorna la precion parcial calculada
     return P
 
+# funcion para el comando del boton y que se ejecute al hacer click
 def calcular():
     # acceder y utilizar el valor registrado por el usuario
     temperatura = int(temperatura_deseada_var.get())
@@ -77,38 +102,111 @@ def calcular():
     gas_deseado = gas_deseado_var.get().upper()  
     opcion = opcion_var.get()
 
-# condicion si se cumple la entrada del usuario
-    if opcion == 'la cantidad de gas disuelto en agua':
+# condicion si se cumple la 1. entrada del usuario
+    if opcion == '1. la cantidad de gas disuelto en agua':
+        #acceder a los valores registrados por el usuario
         presion_parcial = float(presion_parcial_entry.get()) 
         cantidad_agua = float(cantidad_agua_entry.get())
         # llama a la funcion creada
         calculo_si = calcular_gramos_gas(presion_parcial, constante_henry, cantidad_agua, gas_deseado, PM_agua, masa_molecular)
         # se imprime el resultado con dos decimales
-        resultado_si_var.set("La cantidad de gas {} en gramos que se disolverá en el agua es: {:.2f} g".format(gas_deseado, calculo_si))
-        resultado_no_var.set("")  # Limpiar el resultado "no"
+        resultado_cantidad_var.set("La cantidad de gas {} que se disolverá en el agua es: {:.2f} g".format(gas_deseado, calculo_si))
+        # Limpiar el resultado "presion"
+        resultado_presion_var.set("")  
+        # Limpiar el resultado "concentracion"
+        resultado_concentracion_var.set("")  
+    
+    #si no se cumple la anterior, se cumple esta condicion 
+    elif opcion == '2. la presion parcial del gas':
+        #acceder a los valor registrados por el usuario
+        gramos_gas = float(gramos_gas_entry.get())
+        gramos_agua = float(gramos_agua_entry.get())
+        #llama a la funcion
+        calculo_no = calcular_presion_parcial(gramos_gas, gramos_agua, gas_deseado, masa_molecular, PM_agua)
+        #imprime el resultado con dos decimales
+        resultado_presion_var.set("La presión parcial del gas {} es: {:.2f} atm".format(gas_deseado, calculo_no),)
+        # Limpiar el resultado "concentracion"
+        resultado_concentracion_var.set("")  
+        # Limpiar el resultado "cantidad"
+        resultado_cantidad_var.set("")  
 
 # si no se cumple evalua la otra condicion  
     else:
-        gramos_gas = float(gramos_gas_entry.get())
-        gramos_agua = float(gramos_agua_entry.get())
-        calculo_no = calcular_presion_parcial(gramos_gas, gramos_agua, gas_deseado, masa_molecular, PM_agua)
-        resultado_no_var.set("La presión parcial del gas {} es: {:.2f} atm".format(gas_deseado, calculo_no),)
-        resultado_si_var.set("")  # Limpiar el resultado "si"
+        #acceder a los valor registrados por el usuario
+        presion_sis = float(presion_sistema_entry.get())
+        volumen_agua = float(litros_agua_entry.get())
+        volumen_mezcla = float(litros_mezcla_entry.get())
+        composicion_gas = float(composicion_gas_entry.get())
+        #llama a la funcion
+        calculo_sino = calcular_concentracion(presion_sis, volumen_agua, volumen_mezcla, constante_henry, composicion_gas, temperatura, gas_deseado)
+        #imprime el resultado con 10 decimales, ya que los valores son muy pequeños
+        resultado_concentracion_var.set("la concentracion de la disolucion cuando se alcanza el equilibrio es: {:.10f} kg {} /kg agua".format(calculo_sino, gas_deseado))
+        # Limpiar el resultado "cantidad"
+        resultado_cantidad_var.set("")  
+        # Limpiar el resultado "presion"
+        resultado_presion_var.set("")  
 
 #colorsitos que usamos para la interfaz
+
 c_negro = '#010101'
 c_morado = '#7f5af0'
 c_verde = '#2cb67d'
 c_gris = '#f0f0f0'
 
 
+
 #diccionario de las constantes de henry a diferentes temperaturas
 constantes_henry_temperaturas = {
-    0: {'H2S': 268, 'CO2': 728, 'CO': 342, 'C2H6': 12600, 'CH4': 22400, 'NO': 16900, 'O2': 25500, 'N2':52900, 'AIRE': 43200, 'H2': 57900},
-    10: {'H2S': 367, 'CO2': 1040, 'CO': 44200, 'C2H6': 18900, 'CH4': 29700, 'NO': 21800, 'O2': 32700, 'N2': 66800, 'AIRE': 54900, 'H2': 63600},  
-    20: {'H2S': 483, 'CO2': 1420, 'CO': 53600, 'C2H6': 26300, 'CH4': 37600, 'NO': 26400, 'O2': 40100, 'N2': 80400, 'AIRE': 66400, 'H2': 68300},
-    30: {'H2S': 609, 'CO2': 1860, 'CO': 62000, 'C2H6': 34200, 'CH4': 44900, 'NO': 31000, 'O2': 47500, 'N2': 92400, 'AIRE': 77100, 'H2': 72900},
-    40: {'H2S': 745, 'CO2': 2330, 'CO': 69600, 'C2H6': 42300, 'CH4': 52000, 'NO': 35200, 'O2': 52500, 'N2': 104000,'AIRE': 87000, 'H2': 75100},
+    0: {'H2S': 268, 
+        'CO2': 728, 
+        'CO': 342, 
+        'C2H6': 12600, 
+        'CH4': 22400, 
+        'NO': 16900, 
+        'O2': 25500, 
+        'N2':52900, 
+        'AIRE': 43200, 
+        'H2': 57900},
+    10: {'H2S': 367, 
+         'CO2': 1040, 
+         'CO': 44200, 
+         'C2H6': 18900, 
+         'CH4': 29700, 
+         'NO': 21800, 
+         'O2': 32700, 
+         'N2': 66800, 
+         'AIRE': 54900, 
+         'H2': 63600},  
+    20: {'H2S': 483, 
+         'CO2': 1420, 
+         'CO': 53600, 
+         'C2H6': 26300, 
+         'CH4': 37600, 
+         'NO': 26400, 
+         'O2': 40100, 
+         'N2': 80400, 
+         'AIRE': 66400, 
+         'H2': 68300},
+    30: {'H2S': 609, 
+         'CO2': 1860, 
+         'CO': 62000, 
+         'C2H6': 34200, 
+         'CH4': 44900, 
+         'NO': 31000,
+         'O2': 47500, 
+         'N2': 92400, 
+         'AIRE': 77100, 
+         'H2': 72900},
+    40: {'H2S': 745, 
+         'CO2': 2330, 
+         'CO': 69600, 
+         'C2H6': 42300, 
+         'CH4': 52000, 
+         'NO': 35200, 
+         'O2': 52500, 
+         'N2': 104000,
+         'AIRE': 87000, 
+         'H2': 75100},
 }
     
 
@@ -131,16 +229,17 @@ masa_molecular = {  # peso molecular en g/mol
 
 #creacion de la interfaz con CTk, y configuramos algunos parametros
 app = CTk()
-app.geometry("990x600")
+app.geometry("990x800")
 app.minsize(480, 500)
 app.title("Calculadora absorcion de Gases en Agua")
 
 # Variables para almacenar la selección del usuario
 gas_deseado_var = StringVar()
 opcion_var = StringVar()
-resultado_si_var = StringVar()
-resultado_no_var = StringVar()
+resultado_presion_var = StringVar()
+resultado_cantidad_var = StringVar()
 temperatura_deseada_var = StringVar()
+resultado_concentracion_var = StringVar()
 
 logo = PhotoImage(file='imagenes/logo_proyecto.png')
 # elegimos el modo en el que queriamos la interfaz grafica:)
@@ -174,7 +273,9 @@ CTkLabel(master=app,
          font=("sans rerif", 12), 
          text_color= c_verde).place(relx= 0.5, rely = 0.25, anchor="center")
 #con comcoBox cremos la lista, y introducimos los elementos de la lista
-combobox2 = CTkComboBox(master=app, values=["la cantidad de gas disuelto en agua", "la presion parcial del gas"], variable=opcion_var)
+combobox2 = CTkComboBox(master=app, values=["1. la cantidad de gas disuelto en agua", 
+                                            "2. la presion parcial del gas",
+                                            "3. desea calcular la concentracion de la disolucion formada"], variable=opcion_var)
 #configuramos la posicion de la lista anterior
 combobox2.place(relx= 0.5, rely = 0.3, anchor="center")
 
@@ -185,18 +286,24 @@ presion_parcial_entry = CTkEntry(master=app,
                                  fg_color= c_negro, 
                                  width= 220, 
                                  height= 40)
+
+#con Entry el usuario escribe la cantidad deseada
 cantidad_agua_entry = CTkEntry(master=app, 
                                placeholder_text='gramos agua', 
                                border_color= c_verde, 
                                fg_color= c_negro, 
                                width= 220, 
                                height= 40)
+
+#con Entry el usuario escribe la cantidad deseada
 gramos_gas_entry = CTkEntry(master=app, 
                             placeholder_text=' gramos gas', 
                             border_color= c_verde, 
                             fg_color= c_negro, 
                             width= 220, 
                             height= 40)
+
+#con Entry el usuario escribe la cantidad deseada
 gramos_agua_entry = CTkEntry(master=app, 
                              placeholder_text='gramos agua', 
                              border_color= c_verde, 
@@ -204,33 +311,106 @@ gramos_agua_entry = CTkEntry(master=app,
                              width= 220, 
                              height= 40)
 
-#en texto muestra lo que debe escribir el usuario en los bloques correspondientes
+#con Entry el usuario escribe la cantidad deseada
+litros_mezcla_entry = CTkEntry(master=app, 
+                             placeholder_text='cantidad de la mezcla (L)', 
+                             border_color= c_verde, 
+                             fg_color= c_negro, 
+                             width= 220, 
+                             height= 40)
+
+
+#con Entry el usuario escribe la cantidad deseada
+composicion_gas_entry = CTkEntry(master=app, 
+                             placeholder_text='% volumen de gas', 
+                             border_color= c_verde, 
+                             fg_color= c_negro, 
+                             width= 220, 
+                             height= 40)
+
+#con Entry el usuario escribe la cantidad deseada
+presion_sistema_entry = CTkEntry(master=app, 
+                             placeholder_text='presion de la mezcla', 
+                             border_color= c_verde, 
+                             fg_color= c_negro, 
+                             width= 220, 
+                             height= 40)
+
+#con Entry el usuario escribe la cantidad deseada
+litros_agua_entry = CTkEntry(master=app, 
+                             placeholder_text='Cantidad agua (L)', 
+                             border_color= c_verde, 
+                             fg_color= c_negro, 
+                             width= 220, 
+                             height= 40)
+
+
+#se imprimen
 CTkLabel(master=app, 
-         text="Presión parcial del gas (atm):").place(relx= 0.3, rely = 0.4, anchor="center")
+         text="Opcion 1.", 
+         font=("sans rerif", 12), 
+         text_color= c_morado).place(relx= 0.15, rely = 0.4, anchor="center")
+
+CTkLabel(master=app, 
+         text="Opcion 2.", 
+         font=("sans rerif", 12), 
+         text_color= c_morado).place(relx= 0.5, rely = 0.4, anchor="center")
+
+CTkLabel(master=app, 
+         text="Opcion 3.", 
+         font=("sans rerif", 12), 
+         text_color= c_morado).place(relx= 0.8, rely = 0.4, anchor="center")
+
+CTkLabel(master=app, 
+         text="Volumen de la mezcla del gas y aire:").place(relx= 0.8, rely = 0.45, anchor="center")
 #se configura la posicion y los parametros del texto
-presion_parcial_entry.place(relx= 0.5, rely = 0.4, anchor="center")
+litros_mezcla_entry.place(relx= 0.8, rely = 0.52, anchor="center")
+
+CTkLabel(master=app, 
+         text="Composicion del gas (%):").place(relx= 0.8, rely = 0.6, anchor="center")
+#se configura la posicion y los parametros del texto
+composicion_gas_entry.place(relx= 0.8, rely = 0.67, anchor="center")
+
+CTkLabel(master=app, 
+         text="presion del sistema (atm):").place(relx= 0.8, rely = 0.73, anchor="center")
+#se configura la posicion y los parametros del texto
+presion_sistema_entry.place(relx= 0.8, rely = 0.78, anchor="center")
+
+CTkLabel(master=app, 
+         text="Litros de agua en eq:").place(relx= 0.8, rely = 0.85, anchor="center")
+#se configura la posicion y los parametros del texto
+litros_agua_entry.place(relx= 0.8, rely = 0.9, anchor="center")
+
 
 #en texto muestra lo que debe escribir el usuario en los bloques correspondientes
 CTkLabel(master=app, 
-         text="Cantidad de agua (gramos):").place(relx= 0.3, rely = 0.5, anchor="center")
+         text="Presión parcial del gas (atm):").place(relx= 0.15, rely = 0.45, anchor="center")
 #se configura la posicion y los parametros del texto
-cantidad_agua_entry.place(relx= 0.5, rely = 0.5, anchor="center")
+presion_parcial_entry.place(relx= 0.15, rely = 0.52, anchor="center")
 
 #en texto muestra lo que debe escribir el usuario en los bloques correspondientes
 CTkLabel(master=app, 
-         text="Gramos de gas disueltos (gramos):").place(relx= 0.28, rely = 0.6, anchor="center")
+         text="Cantidad de agua (gramos):").place(relx= 0.15, rely = 0.6, anchor="center")
 #se configura la posicion y los parametros del texto
-gramos_gas_entry.place(relx= 0.5, rely = 0.6, anchor="center")
+cantidad_agua_entry.place(relx= 0.15, rely = 0.67, anchor="center")
 
 #en texto muestra lo que debe escribir el usuario en los bloques correspondientes
 CTkLabel(master=app, 
-         text="Cantidad de agua (gramos):").place(relx= 0.3, rely = 0.7, anchor="center")
+         text="Gramos de gas disueltos (gramos):").place(relx= 0.5, rely = 0.45, anchor="center")
 #se configura la posicion y los parametros del texto
-gramos_agua_entry.place(relx= 0.5, rely = 0.7, anchor="center")
+gramos_gas_entry.place(relx= 0.5, rely = 0.52, anchor="center")
+
+#en texto muestra lo que debe escribir el usuario en los bloques correspondientes
+CTkLabel(master=app, 
+         text="Cantidad de agua (gramos):").place(relx= 0.5, rely = 0.6, anchor="center")
+#se configura la posicion y los parametros del texto
+gramos_agua_entry.place(relx= 0.5, rely = 0.67, anchor="center")
 
 #creamos un botoncito y con la funcion de calcular al hacer click en el boton se realizan los calculos correspondientes depediendo de los parametros del usuario
 calcular_button = CTkButton(master=app, 
-                            text= "calcular", 
+                            text= "calcular",
+                            font=("sans rerif", 12), 
+                            text_color= c_negro, 
                             corner_radius=32, 
                             fg_color= c_verde, 
                             hover_color=c_morado,
@@ -242,11 +422,14 @@ calcular_button.place(relx= 0.5, rely = 0.8, anchor="center")
 
 #se añade el texto de la respuesta si se cumple una condicion
 CTkLabel(master=app, 
-         textvariable=resultado_si_var).place(relx= 0.5, rely = 0.9, anchor="center")
+         textvariable=resultado_presion_var).place(relx= 0.5, rely = 0.9, anchor="center")
 
 #se añade el texto de la respuesta si se cumple una condicion
 CTkLabel(master=app, 
-         textvariable=resultado_no_var).place(relx= 0.5, rely = 0.9, anchor="center")
+         textvariable=resultado_cantidad_var).place(relx= 0.5, rely = 0.9, anchor="center")
+
+CTkLabel(master=app, 
+         textvariable=resultado_concentracion_var).place(relx= 0.5, rely = 0.9, anchor="center")
 
 #para iniciar la interfaz
 app.mainloop()
